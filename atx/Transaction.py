@@ -1,6 +1,17 @@
 import logging
 
 
+PASS = 1
+FAIL = 0
+
+
+def get_callable_name(obj):
+    name = ""
+    if obj.__module__ != '__main__':
+        name = name + obj.__module__ + '.'
+    name += obj.__qualname__
+    return name
+
 class Command:
     """
     Command for Transactions.
@@ -21,6 +32,8 @@ class Command:
         self.__undo_delay_arg_name = []
         self.__do_delay_arg = None
         self.__undo_delay_arg = None
+        # 期望的执行返回结果,undo暂时不检查,仅支持简单指比较以及单个参数的函数
+        self.__expect = None
 
     # 设置返回值名称,避免初始化时传入过多参数
     def set_ret(self, do_ret_name='', undo_ret_name=''):
@@ -49,6 +62,12 @@ class Command:
         self.__do_delay_arg = do_arg
         self.__undo_delay_arg = undo_arg
 
+    def set_expect(self, exp):
+        self.__expect = exp
+
+    def get_expect(self):
+        return self.__expect
+
     def is_undo_when_fail(self):
         return self.__undo_when_fail
 
@@ -62,9 +81,14 @@ class Command:
         return args.values()
 
     def do(self):
+
+        print(">>>>>Call:", get_callable_name(self.__do), self.__do_arg)
         return self.__do(*self.__expand_arg(self.__do_arg, [x for x in self.__do_delay_arg]))
 
     def undo(self):
+        if not self.__undo:
+            return True
+        print('>>>>>Rollback:', get_callable_name(self.__undo), self.__undo_arg)
         return self.__undo(*self.__expand_arg(self.__undo_arg, [x for x in self.__undo_delay_arg]))
 
 
@@ -83,7 +107,7 @@ class Transaction:
             print("Args should be tupple!")
             return self
 
-        self.__commands.append(Command(do_func, do_func_arg, undo_func, undo_func_arg))
+        self.__commands.append(Command(do_func, do_func_arg, undo_func, undo_func_arg, undo_when_fail))
         return self
 
     def save_ret(self, do_ret='', undo_ret=''):
@@ -98,9 +122,13 @@ class Transaction:
         self.__commands[len(self.__commands) - 1].set_delay_arg_name(do_arg, undo_arg)
         return self
 
+    def expect(self, exp):
+        self.__commands[len(self.__commands) - 1].set_expect(exp)
+        return self
+
     # 事务提交,执行成功返回True,失败后自动回滚并返回False
     def commit(self):
-        for index, c in self.__commands:
+        for index, c in enumerate(self.__commands):
             # 延迟绑定的参数
             da = {}
             for i, a in enumerate(c.get_delay_arg_name()['do']):
@@ -113,11 +141,15 @@ class Transaction:
             if c.get_ret()['do']:
                 self.__data[c.get_ret()['do']] = ret
 
-            # 如果设置了出错后回滚则回滚!
-            if not ret and c.is_undo_when_fail():
+            # 检查返回值是否符合要求
+            exp = c.get_expect()
+            exp_result = exp(ret) if hasattr(exp, '__call__') else (exp == ret if exp else True)
+
+            # 返回值错误,或者返回值不符合要求,则回滚,返回错误
+            if (not ret or not exp_result) and c.is_undo_when_fail():
                 self.rollback(index)
-                return False
-        return True
+                return FAIL
+        return PASS
 
     def rollback(self, index=-1):
         index = index if 0 <= index < len(self.__commands) else (len(self.__commands) - 1)
@@ -137,3 +169,9 @@ class Transaction:
             if c.get_ret()['undo']:
                 self.__data[c.get_ret()['undo']] = ret
             index -= 1
+        return True
+
+def bbb():
+    print("BBB")
+    return True
+
