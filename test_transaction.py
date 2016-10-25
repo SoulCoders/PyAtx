@@ -35,7 +35,6 @@ def undo_B():
 
 tr = Transaction.Transaction()
 ca = CA()
-tr.add(Transaction.bbb, ())
 tr.add(CA.sss, ())
 tr.add(ca.do)
 tr.add(A, (1,2), undo_A, ())

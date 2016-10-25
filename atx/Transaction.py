@@ -7,8 +7,8 @@ FAIL = 0
 
 def get_callable_name(obj):
     name = ""
-    if obj.__module__ != '__main__':
-        name = name + obj.__module__ + '.'
+    #if obj.__module__ != '__main__':
+    name = name + obj.__module__ + '.'
     name += obj.__qualname__
     return name
 
@@ -171,7 +171,4 @@ class Transaction:
             index -= 1
         return True
 
-def bbb():
-    print("BBB")
-    return True
 
