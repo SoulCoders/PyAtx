@@ -7,10 +7,11 @@ FAIL = 0
 
 def get_callable_name(obj):
     name = ""
-    #if obj.__module__ != '__main__':
+    #  if obj.__module__ != '__main__':
     name = name + obj.__module__ + '.'
     name += obj.__qualname__
     return name
+
 
 class Command:
     """
