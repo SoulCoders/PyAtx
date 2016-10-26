@@ -36,7 +36,8 @@ class ShellTypeBuilder:
     我自己也啥都不干,我的子孙沿着我走过的轨迹探索未知;
     """
     def build(self):
-        return None
+        # 为了语法提示,我们这里还是决定返回一个默认shell,只是它什么也干不了
+        return Shell()
 
 
 class ShellCreator:
