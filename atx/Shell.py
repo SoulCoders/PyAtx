@@ -7,6 +7,7 @@ Shell
 
 """
 
+
 class Shell:
     """
     出生的时候,我懵懂无知,什么都不懂,父辈们细心地教会我一切;
@@ -29,6 +30,10 @@ class Shell:
 
     def read(self, exp_list, timeout):
         return True
+
+    # 我只是为了解决pycharm中的代码提示
+    def __getattr__(self, item):
+        pass
 
 
 class ShellTypeBuilder:

@@ -8,50 +8,57 @@ class ShellSimulator:
         return time.ctime()
 
 
-class ShellPart0(Shell):
-    def __init__(self):
-        self.__conn = None
-
-    def setup(self):
-        self.__conn = ShellSimulator()
-
 # 我只会实现shell的一部分功能
 class ShellPart1(Shell):
-    def __init__(self):
-        self.__conn = ShellSimulator()
-
     def open(self, address):
-        print('send open: ', self.__conn.send('open'))
+        print('send open: ', self.conn.send('open'))
         return True
 
     def close(self):
-        print('send close: ', self.__conn.send('close'))
+        print('send close: ', self.conn.send('close'))
         return True
 
 
 class ShellPart2(Shell):
-    def __init__(self):
-        self.__conn = ShellSimulator()
-
     def login(self, user):
-        print('send login:', self.__conn.send('login'))
+        print('send login:', self.conn.send('login'))
         return True
 
     def logout(self):
-        print('send logout: ', self.__conn.send('logout'))
+        print('send logout: ', self.conn.send('logout'))
+        return True
+
+
+class ShellPart2Dev1(Shell):
+    def login(self, user):
+        print('send login(dev1):', self.conn.send('login'))
+        return True
+
+    def logout(self):
+        print('send logout(dev1): ', self.conn.send('logout'))
         return True
 
 
 # 我是ShellSimulator的替身,是它在程序中的呈现
 class SMBuilder(ShellTypeBuilder):
-    def __init__(self):
-        pass
-
     def build(self):
         class MyShell(ShellPart1, ShellPart2):
             def __init__(self):
+                # 父类和子类共有的变量需要可见
+                self.conn = ShellSimulator()
                 ShellPart1.__init__(self)
                 ShellPart2.__init__(self)
+
+        return MyShell()
+
+
+class SMBuilderDev1(ShellTypeBuilder):
+    def build(self):
+        class MyShell(ShellPart1, ShellPart2Dev1):
+            def __init__(self):
+                self.conn = ShellSimulator()
+                ShellPart1.__init__(self)
+                ShellPart2Dev1.__init__(self)
         return MyShell()
 
 
@@ -63,11 +70,17 @@ class SMBuilder(ShellTypeBuilder):
 
 所以,如果你要使用一个shell,首先需要定义好shell功能,再由builder构建,最后由Creator交给你。
 """
-ShellCreator.add('shell', SMBuilder)
+ShellCreator.add('dev0', SMBuilder)
+ShellCreator.add('dev1', SMBuilderDev1)
 
-sh = ShellCreator.create('shell')
+sh = ShellCreator.create('dev0')
 sh.open('b')
 sh.login('b')
 sh.logout()
 sh.close()
 
+sh = ShellCreator.create('dev1')
+sh.open('b')
+sh.login('b')
+sh.logout()
+sh.close()
