@@ -15,27 +15,7 @@ class Shell:
     出生的时候,我懵懂无知,什么都不懂,父辈们细心地教会我一切;
     待我及笄,你看到的将是新的我。
     """
-    def open(self, address):
-        return True
-
-    def close(self):
-        return True
-
-    def login(self, user):
-        return True
-
-    def logout(self):
-        return True
-
-    def send(self, cmd, exp_list, timeout):
-        return True
-
-    def read(self, exp_list, timeout):
-        return True
-
-    # 我只是为了解决pycharm中的代码提示
-    def __getattr__(self, item):
-        pass
+    pass
 
 
 class ShellTypeBuilder:
@@ -43,8 +23,7 @@ class ShellTypeBuilder:
     我自己也啥都不干,我的子孙沿着我走过的轨迹探索未知;
     """
     def build(self):
-        # 为了语法提示,我们这里还是决定返回一个默认shell,只是它什么也干不了
-        return Shell()
+        return None
 
 
 class ShellCreator:
