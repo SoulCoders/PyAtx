@@ -52,3 +52,7 @@ class ShellCreator:
                 return True
         ShellCreator.__shells.append((name, builder_class))
         return True
+
+    @staticmethod
+    def list():
+        return ShellCreator.__shells
