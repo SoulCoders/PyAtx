@@ -8,79 +8,82 @@ class ShellSimulator:
         return time.ctime()
 
 
-# 我只会实现shell的一部分功能
-class ShellPart1(Shell):
+class TelnetAccessShell(ShellAccess):
+    """
+    我会通过telnet连接ShellSimulator,执行任务
+    """
+    def __init__(self):
+        self.__conn = ShellSimulator()
+
     def open(self, address):
-        print('send open: ', self.conn.send('open'))
+        print("telnet open at ", address)
         return True
 
     def close(self):
-        print('send close: ', self.conn.send('close'))
+        print("telnet close")
         return True
 
+    def send(self, cmd, exp_list, timeout):
+        print('Telnet send, recv:', self.__conn.send())
+        return 0, None, ''
 
-class ShellPart2(Shell):
-    def login(self, user):
-        print('send login:', self.conn.send('login'))
+
+class ComAccessShell(ShellAccess):
+    """
+    我会通过串口连接ShellSimulator,执行任务
+    """
+    def __init__(self):
+        self.__conn = ShellSimulator()
+
+    def open(self, address):
+        print("COM open at ", address)
         return True
 
-    def logout(self):
-        print('send logout: ', self.conn.send('logout'))
+    def close(self):
+        print("COM close")
         return True
 
-
-class ShellPart2Dev1(Shell):
-    def login(self, user):
-        print('send login(dev1):', self.conn.send('login'))
-        return True
-
-    def logout(self):
-        print('send logout(dev1): ', self.conn.send('logout'))
-        return True
+    def send(self, cmd, exp_list, timeout):
+        print('COM send, recv:', self.__conn.send())
+        return 0, None, ''
 
 
-# 我是ShellSimulator的替身,是它在程序中的呈现
-class SMBuilder(ShellTypeBuilder):
-    def build(self):
-        class MyShell(ShellPart1, ShellPart2):
-            def __init__(self):
-                # 父类和子类共有的变量需要可见
-                self.conn = ShellSimulator()
-                ShellPart1.__init__(self)
-                ShellPart2.__init__(self)
+class MyShell(Shell):
+    """
+    我是一个具体的shell
+    可以通过继承啦、组合啦合成一个复杂的shell
+    """
+    def __init__(self, acc=None):
+        self._acc = None
+        Shell.__init__(self, acc)
 
-        return MyShell()
+    def open(self, address):
+        return self._acc.open(address)
+
+    def close(self):
+        return self._acc.close()
+
+    def send(self, cmd, exp_list=None, timeout=5):
+        return self._acc.send(cmd, exp_list, timeout)
+
+    # 可以在这里面实现更多功能
+    # .......
 
 
-class SMBuilderDev1(ShellTypeBuilder):
-    def build(self):
-        class MyShell(ShellPart1, ShellPart2Dev1):
-            def __init__(self):
-                self.conn = ShellSimulator()
-                ShellPart1.__init__(self)
-                ShellPart2Dev1.__init__(self)
-        return MyShell()
+class MyShellBuilder(ShellTypeBuilder):
+    def build(self, ac):
+        sh = MyShell(ac)
+        return sh
 
 
-"""
-好吧,我想我应该来说明下,这样写有什么意义!
-我们试想这样一些场景:
-1) 自动化中,需要连接各式各样设备,所以需要有一个工厂统一管理shell对象生产
-2) 对于同一类设备,shell间可能存在差别,如果一个类能搞定更好,但是通常,我们引入builder来帮我们构建
+ShellCreator.add('myshell', MyShellBuilder)
 
-所以,如果你要使用一个shell,首先需要定义好shell功能,再由builder构建,最后由Creator交给你。
-"""
-ShellCreator.add('dev0', SMBuilder)
-ShellCreator.add('dev1', SMBuilderDev1)
+mysh = ShellCreator.create('myshell', TelnetAccessShell)
+mysh.open(('127.0.0.1', 1000))
+mysh.send('abc')
+mysh.close()
 
-sh = ShellCreator.create('dev0')
-sh.open('b')
-sh.login('b')
-sh.logout()
-sh.close()
-
-sh = ShellCreator.create('dev1')
-sh.open('b')
-sh.login('b')
-sh.logout()
-sh.close()
+mysh = ShellCreator.create('myshell', ComAccessShell)
+mysh.open(('COM1', 9600))
+mysh.send('abc')
+mysh.close()

@@ -29,13 +29,9 @@ class Shell:
     出生的时候,我懵懂无知,什么都不懂,父辈们细心地教会我一切;
     待我及笄,你看到的将是新的我。
     """
-    def __init__(self):
-        self.__acc = None
-
-    def __set_access__(self, ac):
-        a = ac()
-        if isinstance(a, ShellAccess):
-            self.__acc = a
+    def __init__(self, acc=None):
+        if isinstance(acc(), ShellAccess):
+            self._acc = acc()
 
 
 class ShellTypeBuilder:
