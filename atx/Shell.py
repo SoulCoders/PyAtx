@@ -93,6 +93,13 @@ mysh.open(('COM1', 9600))
 mysh.send('abc')
 mysh.close()
 
+上述脚本会产生以下输出:
+telnet open at  ('127.0.0.1', 1000)
+Telnet send, recv: Fri Oct 28 19:38:22 2016
+telnet close
+COM open at  ('COM1', 9600)
+COM send, recv: Fri Oct 28 19:38:22 2016
+COM close
 
 关于
 -----
