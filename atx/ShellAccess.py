@@ -1,3 +1,10 @@
+"""
+ShellAccess
+----------
+很多shell可以用telnet,也可以用ssh,所以说接入方式可选。
+因此我们可以在初始化时指定接入的类。
+
+"""
 import telnetlib
 
 
