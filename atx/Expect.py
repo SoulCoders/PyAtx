@@ -20,8 +20,9 @@ result = ObjectExpect({
     "b": lambda x: x <= 1,
     "c": lambda x: len(x) == 3,
     "d": {
-        "a": [1,2]
-    }
+        "a": [1,2],
+        "f": 22
+    },
 })
 
 关于
@@ -63,19 +64,4 @@ def ObjectExpect(obj, exp):
                 return False
     return True
 
-result = ObjectExpect({
-    "a": 0,
-    "b": 1,
-    "c": "sss",
-    "d": {
-        "a": 1
-    }
-}, {
-    "a": [0, 1, 2, 3],
-    "b": lambda x: x <= 1,
-    "c": lambda x: len(x) == 3,
-    "d": {
-        "a": [1,2],
-        "f": 22
-    },
-})
+
