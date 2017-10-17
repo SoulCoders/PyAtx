@@ -42,25 +42,40 @@ def ObjectExpect(obj, exp):
         return True
 
     for k, v in exp.items():
-        if type(obj) is object:
-            o = obj.__dict__
-        else:
-            o = obj
+        o = obj.__dict__ if type(obj) is object else obj
         if k not in o:
+            print('[expect][fail] key "{}": not exist.'.format(k))
             return False
-
         if type(v) is dict:
             ret = ObjectExpect(o[k], v)
             if not ret:
                 return False
         elif type(v) is list:
             if o[k] not in v:
+                print('[expect][fail] key "{}": "{}" in list "{}"'.format(k, o[k], v))
                 return False
         elif callable(v):
             if not v(o[k]):
+                print('[expect][fail] key "{}": function judge fail.'.format(k))
                 return False
         else:
             if o[k] != v:
                 return False
     return True
 
+result = ObjectExpect({
+    "a": 0,
+    "b": 1,
+    "c": "sss",
+    "d": {
+        "a": 1
+    }
+}, {
+    "a": [0, 1, 2, 3],
+    "b": lambda x: x <= 1,
+    "c": lambda x: len(x) == 3,
+    "d": {
+        "a": [1,2],
+        "f": 22
+    },
+})
