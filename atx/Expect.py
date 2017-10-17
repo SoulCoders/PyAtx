@@ -4,7 +4,7 @@ ObjectExpect
 
 话说,我喜欢我的对象符合我的要求.
 
-举个例子
+例子
 -----
 from atx.Expect import ObjectExpect
 
@@ -24,6 +24,9 @@ result = ObjectExpect({
     }
 })
 
+关于
+-----
+Author: tkorays<tkorays@hotmail.com>
 """
 
 
